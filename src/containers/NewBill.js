@@ -17,9 +17,28 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
+    const fileInput = this.document.querySelector(`input[data-testid="file"]`)
+    const file = fileInput.files[0];
+
+    if(!file) {
+      console.error("Aucun fichier sélectionné.");
+      return;
+    }
+    // je créee une regex pour vérifier que le fichier a bien les extensions autorisées
+    const regexExtensionGranted = /\.(jpg|jpeg|png)$/i;
+    const fileName = file.name;
+
+    // je créee une constante pour afficher un message d'erreur si l'extension n'est pas autorisée
+    const errorExtension = document.querySelector(".errorType");
+    if(!regexExtensionGranted.test(fileName)) {
+      errorExtension.style.color = "red"
+      errorExtension.innerText = "Extensions autorisées : .jpg, .jpeg, .png"
+      fileInput.value = ""
+      return;
+    } else {
+      errorExtension.style.display = 'none';
+    }
+
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)

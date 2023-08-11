@@ -34,7 +34,7 @@ export default () => {
                     <input required type="date" class="form-control blue-border" data-testid="datepicker" />
                   </div>
                   <div class="col-half">
-                    <label for="amount" class="bold-label">Montant TTC </label>
+                    <label for="amount" class="bold-label"> Montant TTC </label>
                     <input required type="number" class="form-control blue-border input-icon input-icon-right" data-testid="amount" placeholder="348"/>
                   </div>
                   <div class="col-half-row">
@@ -56,6 +56,7 @@ export default () => {
                   <div class="col-half">
                     <label for="file" class="bold-label">Justificatif</label>
                     <input required type="file" class="form-control blue-border" data-testid="file" />
+                    <span class="errorType" data-testid="errorMsg"></span>
                   </div>
                 </div>
             </div>
