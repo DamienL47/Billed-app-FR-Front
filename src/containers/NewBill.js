@@ -18,19 +18,20 @@ export default class NewBill {
 
   handleChangeFile = e => {
     e.preventDefault()
-    const fileInput = this.document.querySelector(`input[data-testid="file"]`).files[0];
+    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
+    const file = fileInput.files[0];
+    const fileName = file.name;
     
-    if(!fileInput) {
+    if(!file) {
       console.error("Aucun fichier sélectionné.");
       return;
     } else {
       // je créee une regex pour vérifier que le fichier a bien les extensions autorisées
       const regexExtensionGranted = /\.(jpg|jpeg|png)$/i;
-      // const fileName = fileInput.name;
 
       // je crée une constante pour afficher un message d'erreur si l'extension n'est pas autorisée
       const errorExtension = document.querySelector(".errorType");
-      if(!regexExtensionGranted.test(fileInput.name)) {
+      if(!regexExtensionGranted.test(fileName)) {
         errorExtension.style.color = "red"
         errorExtension.innerText = "Extensions autorisées : .jpg, .jpeg, .png"
         fileInput.value = "";
@@ -38,23 +39,21 @@ export default class NewBill {
         errorExtension.style.display = 'none';
         const formData = new FormData()
         const email = JSON.parse(localStorage.getItem("user")).email
-        formData.append('file', fileInput.name)
+        formData.append('file', file)
         formData.append('email', email)
 
         for(let pair of formData.entries()) {
           console.log(pair[0]+ ', '+ pair[1]);
         }
-        
         this.store
           .bills()
           .create({
             data: formData,
             headers: {
-              noContentType: true
+              noContentType: true,
             }
           })
           .then(({fileUrl, key}) => {
-            console.log(fileUrl)
             this.billId = key
             this.fileUrl = fileUrl
             this.fileName = fileName
@@ -79,6 +78,7 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
+    console.log(bill)
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
