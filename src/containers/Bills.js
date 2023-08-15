@@ -1,7 +1,6 @@
 import { ROUTES_PATH } from '../constants/routes.js'
 import { formatDate, formatStatus } from "../app/format.js"
 import Logout from "./Logout.js"
-import { bills } from '../fixtures/bills.js'
 
 export default class {
   constructor({ document, onNavigate, store, localStorage }) {
@@ -27,6 +26,7 @@ export default class {
     $('#modaleFile').find(".modal-body").html(`<div style='text-align: center;' class="bill-proof-container"><img width=${imgWidth} src=${billUrl} alt="Bill" /></div>`)
     $('#modaleFile').modal('show')
   }
+
   // Je crée une fonction de tri par date des bills 
   sortByDate = (bills) => {
     return bills.sort((a, b) => ((b < a) ? 1 : -1));
@@ -57,9 +57,12 @@ export default class {
               }
             }
           })
-          // ici je return ma fonction de tri des bills par date
+        // ici je return ma fonction de tri des bills par date
         return this.sortByDate(bills);
       })
     }
   }
 }
+
+
+

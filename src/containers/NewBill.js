@@ -6,58 +6,61 @@ export default class NewBill {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
-    const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
-    formNewBill.addEventListener("submit", this.handleSubmit)
     const file = this.document.querySelector(`input[data-testid="file"]`)
     file.addEventListener("change", this.handleChangeFile)
+    const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
+    formNewBill.addEventListener("submit", this.handleSubmit)
     this.fileUrl = null
     this.fileName = null
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
+
   handleChangeFile = e => {
     e.preventDefault()
-    const fileInput = this.document.querySelector(`input[data-testid="file"]`)
-    const file = fileInput.files[0];
-
-    if(!file) {
+    const fileInput = this.document.querySelector(`input[data-testid="file"]`).files[0];
+    
+    if(!fileInput) {
       console.error("Aucun fichier sélectionné.");
       return;
-    }
-    // je créee une regex pour vérifier que le fichier a bien les extensions autorisées
-    const regexExtensionGranted = /\.(jpg|jpeg|png)$/i;
-    const fileName = file.name;
-
-    // je créee une constante pour afficher un message d'erreur si l'extension n'est pas autorisée
-    const errorExtension = document.querySelector(".errorType");
-    if(!regexExtensionGranted.test(fileName)) {
-      errorExtension.style.color = "red"
-      errorExtension.innerText = "Extensions autorisées : .jpg, .jpeg, .png"
-      fileInput.value = ""
-      return;
     } else {
-      errorExtension.style.display = 'none';
-    }
+      // je créee une regex pour vérifier que le fichier a bien les extensions autorisées
+      const regexExtensionGranted = /\.(jpg|jpeg|png)$/i;
+      // const fileName = fileInput.name;
 
-    const formData = new FormData()
-    const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
-    formData.append('email', email)
+      // je crée une constante pour afficher un message d'erreur si l'extension n'est pas autorisée
+      const errorExtension = document.querySelector(".errorType");
+      if(!regexExtensionGranted.test(fileInput.name)) {
+        errorExtension.style.color = "red"
+        errorExtension.innerText = "Extensions autorisées : .jpg, .jpeg, .png"
+        fileInput.value = "";
+      } else {
+        errorExtension.style.display = 'none';
+        const formData = new FormData()
+        const email = JSON.parse(localStorage.getItem("user")).email
+        formData.append('file', fileInput.name)
+        formData.append('email', email)
 
-    this.store
-      .bills()
-      .create({
-        data: formData,
-        headers: {
-          noContentType: true
+        for(let pair of formData.entries()) {
+          console.log(pair[0]+ ', '+ pair[1]);
         }
-      })
-      .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-      }).catch(error => console.error(error))
+        
+        this.store
+          .bills()
+          .create({
+            data: formData,
+            headers: {
+              noContentType: true
+            }
+          })
+          .then(({fileUrl, key}) => {
+            console.log(fileUrl)
+            this.billId = key
+            this.fileUrl = fileUrl
+            this.fileName = fileName
+          }).catch(error => console.error(error))
+      }
+    }
   }
   handleSubmit = e => {
     e.preventDefault()
