@@ -40,6 +40,7 @@ export default class NewBill {
         return;
       }     
     }
+    
   }
   handleSubmit = e => {
     e.preventDefault()

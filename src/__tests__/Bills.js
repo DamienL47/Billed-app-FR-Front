@@ -4,7 +4,7 @@
 
 import '@testing-library/jest-dom';
 
-import {screen, waitFor} from "@testing-library/dom"
+import {screen, waitFor, fireEvent} from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
 import { ROUTES_PATH} from "../constants/routes.js";
@@ -12,6 +12,7 @@ import {localStorageMock} from "../__mocks__/localStorage.js";
 import { formatDate } from '../app/format.js';
 
 import router from "../app/Router.js";
+import Bills from '../containers/Bills.js';
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -28,7 +29,6 @@ describe("Given I am connected as an employee", () => {
       window.onNavigate(ROUTES_PATH.Bills)
       await waitFor(() => screen.getByTestId('icon-window'))
       const windowIcon = screen.getByTestId('icon-window')
-      //to-do write expect expression
       expect(windowIcon).toHaveClass('active-icon');
 
     })
@@ -40,7 +40,51 @@ describe("Given I am connected as an employee", () => {
       const antiChrono = (a, b) => ((b < a) ? 1 : -1)
       const datesSorted = [...billsDates].sort(antiChrono)
       expect(billsDates).toEqual(datesSorted)
-    })
-    
+    }) 
+
+    describe("handleClickNewBill", () => {
+      test("should call onNavigate when new bill button is clicked", () => {
+        const mockOnNavigate = jest.fn();
+        const bills = new Bills({
+          document: document,
+          onNavigate: mockOnNavigate,
+          store: null,
+          localStorage: null
+        });
+  
+        document.body.innerHTML = '<button data-testid="btn-new-bill">New Bill</button>';
+        bills.handleClickNewBill();
+  
+        expect(mockOnNavigate).toHaveBeenCalledWith(ROUTES_PATH.NewBill);
+      });
+    });
+  
+    describe('When I am on Bills page and I click on an icon eye', () => {
+      test('Then a modal should open', () => {
+        // On récupère le HTML
+        document.body.innerHTML = BillsUI({ data: bills });
+        // On lance la class de la page et on récupère les éléments aassocies
+        const billsContainer = new Bills({
+          document,
+          onNavigate,
+          Store: null,
+          localStorage: window.localStorage,
+        });
+        // On récupère le champ 'modaleFile'
+        const modale = document.getElementById('modaleFile')
+          $.fn.modal = jest.fn(() => modale.classList.add("show"))
+        // On récupère le champ 'icon-eye'
+        const iconEye = screen.getAllByTestId('icon-eye')[0];
+        // On crée une fonction simulé de la vrai fonction
+        const handleClickIconEye = jest.fn(
+          billsContainer.handleClickIconEye(iconEye)
+        );
+        // On crée un évenement, dès qu'on click sur 'iconEye' on appelle la fonction simulé qu'on a créé au-dessus
+        iconEye.addEventListener('click', handleClickIconEye);
+        fireEvent.click(iconEye);
+        // On vérifie que la fonction a bien été appelée
+        expect(handleClickIconEye).toHaveBeenCalled();
+      });
+    });
   })
 })
