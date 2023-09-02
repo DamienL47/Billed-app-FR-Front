@@ -4,15 +4,15 @@
 
 import '@testing-library/jest-dom';
 
-import {screen, waitFor, fireEvent} from "@testing-library/dom"
+import {screen, waitFor, fireEvent } from "@testing-library/dom"
 import BillsUI from "../views/BillsUI.js"
 import { bills } from "../fixtures/bills.js"
-import { ROUTES_PATH} from "../constants/routes.js";
+import { ROUTES_PATH } from "../constants/routes.js";
 import {localStorageMock} from "../__mocks__/localStorage.js";
 import { formatDate } from '../app/format.js';
-
 import router from "../app/Router.js";
 import Bills from '../containers/Bills.js';
+import NewBill from '../containers/NewBill.js';
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -63,7 +63,7 @@ describe("Given I am connected as an employee", () => {
       test('Then a modal should open', () => {
         // On récupère le HTML
         document.body.innerHTML = BillsUI({ data: bills });
-        // On lance la class de la page et on récupère les éléments aassocies
+        // On lance la class de la page et on récupère les éléments associes
         const billsContainer = new Bills({
           document,
           onNavigate,
@@ -86,5 +86,5 @@ describe("Given I am connected as an employee", () => {
         expect(handleClickIconEye).toHaveBeenCalled();
       });
     });
-  })
+  });
 })

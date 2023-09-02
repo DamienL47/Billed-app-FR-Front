@@ -6,7 +6,7 @@ export default class NewBill {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
-    const file = this.document.querySelector(`input[data-testid="file"]`)
+    const file = this.document.querySelector(`input[data-testid="fileInput"]`)
     file.addEventListener("change", this.handleChangeFile)
     const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
     formNewBill.addEventListener("submit", this.handleSubmit)
@@ -16,31 +16,26 @@ export default class NewBill {
     new Logout({ document, localStorage, onNavigate })
   }
 
-  handleChangeFile = e => {
-    e.preventDefault()
-    const fileInput = this.document.querySelector(`input[data-testid="file"]`);
-    this.filepath = fileInput.files[0];
-    const fileName = this.filepath.name;
+  handleChangeFile = () => {
+    const fileInput = this.document.querySelector(`input[data-testid="fileInput"]`);
     
-    if(!this.filepath) {
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
       console.error("Aucun fichier sélectionné.");
       return;
-    } else {
-      // je créee une regex pour vérifier que le fichier a bien les extensions autorisées
-      const regexExtensionGranted = /\.(jpg|jpeg|png)$/i;
-
-      // je crée une constante pour afficher un message d'erreur si l'extension n'est pas autorisée
-      const errorExtension = document.querySelector(".errorType");
-      if(!regexExtensionGranted.test(fileName)) {
-        errorExtension.style.color = "red"
-        errorExtension.innerText = "Extensions autorisées : .jpg, .jpeg, .png"
-        fileInput.value = "";
-      } else {
-        errorExtension.style.display = 'none';
-        return;
-      }     
     }
-    
+  
+    const fileName = fileInput.files[0].name;
+    const regexExtensionGranted = /\.(jpg|jpeg|png)$/i;
+    const errorExtension = document.querySelector(".errorType");
+  
+    if (!regexExtensionGranted.test(fileName)) {
+      errorExtension.style.color = "red";
+      errorExtension.innerText = "Extensions autorisées : .jpg, .jpeg, .png";
+      fileInput.value = "";
+    } else {
+      errorExtension.style.display = 'none';
+      return;
+    }
   }
   handleSubmit = e => {
     e.preventDefault()
