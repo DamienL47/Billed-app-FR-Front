@@ -12,7 +12,33 @@ import {localStorageMock} from "../__mocks__/localStorage.js";
 import { formatDate } from '../app/format.js';
 import router from "../app/Router.js";
 import Bills from '../containers/Bills.js';
-import NewBill from '../containers/NewBill.js';
+import { sortByDate } from '../containers/Bills.js'
+
+// Fonction pour convertir une date au format "DD-MMM-YY" en "YYYY-MM-DD"
+const convertDateToYYYYMMDD = (dateStr) => {
+  const parts = dateStr.match(/(\d{1,2})\s+([A-Za-zéû]*)\s+(\d{2})/);
+  if (parts && parts.length === 4) {
+    const day = parts[1].padStart(2, '0');
+    const monthMap = {
+      'Jan': '01',
+      'Fév': '02',
+      'Mar': '03',
+      'Avr': '04',
+      'Mai': '05',
+      'Jun': '06',
+      'Jui': '07',
+      'Aoû': '08',
+      'Sep': '09',
+      'Oct': '10',
+      'Nov': '11',
+      'Déc': '12',
+    };
+    const month = monthMap[parts[2]];
+    const year = `20${parts[3]}`;
+    return `${year}-${month}-${day}`;
+  }
+  return '';
+};
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
@@ -34,7 +60,7 @@ describe("Given I am connected as an employee", () => {
     })
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills })
-      const billsSorted =  bills.sort((a, b) => new Date(formatDate(a.date)) - new Date(formatDate(b.date)))
+      const billsSorted =  bills.sort((a, b) => new Date(a.date) - new Date(b.date))
       const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML)
       const billsDates = billsSorted.map((bill) => bill.date === [...dates]);
       const antiChrono = (a, b) => ((b < a) ? 1 : -1)
@@ -84,6 +110,46 @@ describe("Given I am connected as an employee", () => {
         fireEvent.click(iconEye);
         // On vérifie que la fonction a bien été appelée
         expect(handleClickIconEye).toHaveBeenCalled();
+      });
+    });
+
+    // Test pour la méthode getBills
+    describe('When I fetch bills data', () => {
+      test("Then bills should be ordered chronologically", () => {
+        document.body.innerHTML = BillsUI({ data: bills });
+        const sortedBills = bills.sort((a, b) => new Date(a.date) - new Date(b.date))
+        const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML);
+        const receivedDates = dates.map(convertDateToYYYYMMDD);
+  
+        // Converti les dates "expected" au format YYYY-MM-DD
+        const expectedSortedDates = sortedBills.map(bill => convertDateToYYYYMMDD(bill.date));
+  
+        // Vérifie que les dates "received" sont égales aux dates "expected" une fois converties
+        expect(receivedDates).toEqual(expectedSortedDates);
+      });
+      test("Then sortByDate should be called", async () => {
+        document.body.innerHTML = BillsUI({ data: bills });
+    
+        // Créez une instance Bills avec des mocks appropriés
+        const billsInstance = new Bills({
+          document: document,
+          onNavigate: jest.fn(),
+          store: {
+            bills: () => ({
+              list: () => Promise.resolve(bills),
+            }),
+          },
+          localStorage: null,
+        });
+    
+        // Spy on sortByDate method
+        const sortByDateSpy = jest.spyOn(billsInstance, 'sortByDate');
+    
+        // Call getBills
+        await billsInstance.getBills();
+    
+        // Expect sortByDate to have been called
+        expect(sortByDateSpy).toHaveBeenCalled();
       });
     });
   });

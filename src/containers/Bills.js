@@ -62,5 +62,6 @@ export default class {
         return this.sortByDate(bills);
       })
     }
+    return Promise.resolve([]);
   }
 }
