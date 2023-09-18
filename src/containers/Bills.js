@@ -28,7 +28,7 @@ export default class {
     $('#modaleFile').modal('show')
   }
 
-  // Je crée une fonction de tri par date des bills 
+  // Je crée une fonction de tri par date de bills 
   sortByDate = (bills) => {
     return bills.sort((a, b) => ((b < a) ? 1 : -1));
   }
@@ -58,10 +58,9 @@ export default class {
               }
             }
           })
-        // ici je return ma fonction de tri des bills par date
+        // ici je return les factures triées par date
         return this.sortByDate(bills);
       })
     }
-    return Promise.resolve([]);
   }
 }

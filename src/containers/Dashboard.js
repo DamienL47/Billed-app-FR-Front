@@ -97,7 +97,7 @@ export default class {
       $('.vertical-navbar').css({ height: '150vh' })
       this.counter ++
     } 
-    // Cette partie de code empêche la selection d'un ticket d'un autre statut que celui de la liste deployée
+    // Cette partie de code empêche l'affichage d'un ticket ayant un autre statut que celui de la liste deployée
     // else {
     //   $(`#open-bill${bill.id}`).css({ background: '#2A2B35' })
 
